@@ -1,0 +1,2072 @@
+Grammar
+
+    0 $accept: input $end
+
+    1 input: mainmenu_stmt stmt_list
+    2      | stmt_list
+
+    3 mainmenu_stmt: T_MAINMENU T_WORD_QUOTE T_EOL
+
+    4 stmt_list: %empty
+    5          | stmt_list assignment_stmt
+    6          | stmt_list choice_stmt
+    7          | stmt_list comment_stmt
+    8          | stmt_list config_stmt
+    9          | stmt_list if_stmt
+   10          | stmt_list menu_stmt
+   11          | stmt_list menuconfig_stmt
+   12          | stmt_list source_stmt
+   13          | stmt_list T_WORD error T_EOL
+   14          | stmt_list error T_EOL
+
+   15 stmt_list_in_choice: %empty
+   16                    | stmt_list_in_choice comment_stmt
+   17                    | stmt_list_in_choice config_stmt
+   18                    | stmt_list_in_choice if_stmt_in_choice
+   19                    | stmt_list_in_choice error T_EOL
+
+   20 config_entry_start: T_CONFIG nonconst_symbol T_EOL
+
+   21 config_stmt: config_entry_start config_option_list
+
+   22 menuconfig_entry_start: T_MENUCONFIG nonconst_symbol T_EOL
+
+   23 menuconfig_stmt: menuconfig_entry_start config_option_list
+
+   24 config_option_list: %empty
+   25                   | config_option_list config_option
+   26                   | config_option_list depends
+   27                   | config_option_list help
+
+   28 config_option: type prompt_stmt_opt T_EOL
+   29              | T_PROMPT T_WORD_QUOTE if_expr T_EOL
+   30              | T_TRANSITIONAL T_EOL
+   31              | default expr if_expr T_EOL
+   32              | T_SELECT nonconst_symbol if_expr T_EOL
+   33              | T_IMPLY nonconst_symbol if_expr T_EOL
+   34              | T_RANGE symbol symbol if_expr T_EOL
+   35              | T_MODULES T_EOL
+
+   36 choice: T_CHOICE T_EOL
+
+   37 choice_entry: choice choice_option_list
+
+   38 choice_end: end
+
+   39 choice_stmt: choice_entry stmt_list_in_choice choice_end
+
+   40 choice_option_list: %empty
+   41                   | choice_option_list choice_option
+   42                   | choice_option_list depends
+   43                   | choice_option_list help
+
+   44 choice_option: T_PROMPT T_WORD_QUOTE if_expr T_EOL
+   45              | T_DEFAULT nonconst_symbol if_expr T_EOL
+
+   46 type: T_BOOL
+   47     | T_TRISTATE
+   48     | T_INT
+   49     | T_HEX
+   50     | T_STRING
+
+   51 default: T_DEFAULT
+   52        | T_DEF_BOOL
+   53        | T_DEF_TRISTATE
+
+   54 if_entry: T_IF expr T_EOL
+
+   55 if_end: end
+
+   56 if_stmt: if_entry stmt_list if_end
+
+   57 if_stmt_in_choice: if_entry stmt_list_in_choice if_end
+
+   58 menu: T_MENU T_WORD_QUOTE T_EOL
+
+   59 menu_entry: menu menu_option_list
+
+   60 menu_end: end
+
+   61 menu_stmt: menu_entry stmt_list menu_end
+
+   62 menu_option_list: %empty
+   63                 | menu_option_list visible
+   64                 | menu_option_list depends
+
+   65 source_stmt: T_SOURCE T_WORD_QUOTE T_EOL
+
+   66 comment: T_COMMENT T_WORD_QUOTE T_EOL
+
+   67 comment_stmt: comment comment_option_list
+
+   68 comment_option_list: %empty
+   69                    | comment_option_list depends
+
+   70 help_start: T_HELP T_EOL
+
+   71 help: help_start T_HELPTEXT
+
+   72 depends: T_DEPENDS T_ON expr T_EOL
+
+   73 visible: T_VISIBLE if_expr T_EOL
+
+   74 prompt_stmt_opt: %empty
+   75                | T_WORD_QUOTE if_expr
+
+   76 end: T_ENDMENU T_EOL
+   77    | T_ENDCHOICE T_EOL
+   78    | T_ENDIF T_EOL
+
+   79 if_expr: %empty
+   80        | T_IF expr
+
+   81 expr: symbol
+   82     | symbol T_LESS symbol
+   83     | symbol T_LESS_EQUAL symbol
+   84     | symbol T_GREATER symbol
+   85     | symbol T_GREATER_EQUAL symbol
+   86     | symbol T_EQUAL symbol
+   87     | symbol T_UNEQUAL symbol
+   88     | T_OPEN_PAREN expr T_CLOSE_PAREN
+   89     | T_NOT expr
+   90     | expr T_OR expr
+   91     | expr T_AND expr
+
+   92 nonconst_symbol: T_WORD
+
+   93 symbol: nonconst_symbol
+   94       | T_WORD_QUOTE
+
+   95 assignment_stmt: T_WORD assign_op assign_val T_EOL
+
+   96 assign_op: T_EQUAL
+   97          | T_COLON_EQUAL
+   98          | T_PLUS_EQUAL
+
+   99 assign_val: %empty
+  100           | T_ASSIGN_VAL
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256) 13 14 19
+    T_HELPTEXT <string> (258) 71
+    T_WORD <string> (259) 13 92 95
+    T_WORD_QUOTE <string> (260) 3 29 44 58 65 66 75 94
+    T_BOOL (261) 46
+    T_CHOICE (262) 36
+    T_CLOSE_PAREN (263) 88
+    T_COLON_EQUAL (264) 97
+    T_COMMENT (265) 66
+    T_CONFIG (266) 20
+    T_DEFAULT (267) 45 51
+    T_DEF_BOOL (268) 52
+    T_DEF_TRISTATE (269) 53
+    T_DEPENDS (270) 72
+    T_ENDCHOICE (271) 77
+    T_ENDIF (272) 78
+    T_ENDMENU (273) 76
+    T_HELP (274) 70
+    T_HEX (275) 49
+    T_IF (276) 54 80
+    T_IMPLY (277) 33
+    T_INT (278) 48
+    T_MAINMENU (279) 3
+    T_MENU (280) 58
+    T_MENUCONFIG (281) 22
+    T_MODULES (282) 35
+    T_ON (283) 72
+    T_OPEN_PAREN (284) 88
+    T_PLUS_EQUAL (285) 98
+    T_PROMPT (286) 29 44
+    T_RANGE (287) 34
+    T_SELECT (288) 32
+    T_SOURCE (289) 65
+    T_STRING (290) 50
+    T_TRANSITIONAL (291) 30
+    T_TRISTATE (292) 47
+    T_VISIBLE (293) 73
+    T_EOL (294) 3 13 14 19 20 22 28 29 30 31 32 33 34 35 36 44 45 54 58 65 66 70 72 73 76 77 78 95
+    T_ASSIGN_VAL <string> (295) 100
+    T_OR (296) 90
+    T_AND (297) 91
+    T_EQUAL (298) 86 96
+    T_UNEQUAL (299) 87
+    T_LESS (300) 82
+    T_LESS_EQUAL (301) 83
+    T_GREATER (302) 84
+    T_GREATER_EQUAL (303) 85
+    T_NOT (304) 89
+
+
+Nonterminals, with rules where they appear
+
+    $accept (50)
+        on left: 0
+    input (51)
+        on left: 1 2
+        on right: 0
+    mainmenu_stmt (52)
+        on left: 3
+        on right: 1
+    stmt_list (53)
+        on left: 4 5 6 7 8 9 10 11 12 13 14
+        on right: 1 2 5 6 7 8 9 10 11 12 13 14 56 61
+    stmt_list_in_choice (54)
+        on left: 15 16 17 18 19
+        on right: 16 17 18 19 39 57
+    config_entry_start (55)
+        on left: 20
+        on right: 21
+    config_stmt (56)
+        on left: 21
+        on right: 8 17
+    menuconfig_entry_start (57)
+        on left: 22
+        on right: 23
+    menuconfig_stmt (58)
+        on left: 23
+        on right: 11
+    config_option_list (59)
+        on left: 24 25 26 27
+        on right: 21 23 25 26 27
+    config_option (60)
+        on left: 28 29 30 31 32 33 34 35
+        on right: 25
+    choice (61)
+        on left: 36
+        on right: 37
+    choice_entry <menu> (62)
+        on left: 37
+        on right: 39
+    choice_end (63)
+        on left: 38
+        on right: 39
+    choice_stmt (64)
+        on left: 39
+        on right: 6
+    choice_option_list (65)
+        on left: 40 41 42 43
+        on right: 37 41 42 43
+    choice_option (66)
+        on left: 44 45
+        on right: 41
+    type <type> (67)
+        on left: 46 47 48 49 50
+        on right: 28
+    default <type> (68)
+        on left: 51 52 53
+        on right: 31
+    if_entry <menu> (69)
+        on left: 54
+        on right: 56 57
+    if_end (70)
+        on left: 55
+        on right: 56 57
+    if_stmt (71)
+        on left: 56
+        on right: 9
+    if_stmt_in_choice (72)
+        on left: 57
+        on right: 18
+    menu (73)
+        on left: 58
+        on right: 59
+    menu_entry <menu> (74)
+        on left: 59
+        on right: 61
+    menu_end (75)
+        on left: 60
+        on right: 61
+    menu_stmt (76)
+        on left: 61
+        on right: 10
+    menu_option_list (77)
+        on left: 62 63 64
+        on right: 59 63 64
+    source_stmt (78)
+        on left: 65
+        on right: 12
+    comment (79)
+        on left: 66
+        on right: 67
+    comment_stmt (80)
+        on left: 67
+        on right: 7 16
+    comment_option_list (81)
+        on left: 68 69
+        on right: 67 69
+    help_start (82)
+        on left: 70
+        on right: 71
+    help (83)
+        on left: 71
+        on right: 27 43
+    depends (84)
+        on left: 72
+        on right: 26 42 64 69
+    visible (85)
+        on left: 73
+        on right: 63
+    prompt_stmt_opt (86)
+        on left: 74 75
+        on right: 28
+    end <string> (87)
+        on left: 76 77 78
+        on right: 38 55 60
+    if_expr <expr> (88)
+        on left: 79 80
+        on right: 29 31 32 33 34 44 45 73 75
+    expr <expr> (89)
+        on left: 81 82 83 84 85 86 87 88 89 90 91
+        on right: 31 54 72 80 88 89 90 91
+    nonconst_symbol <symbol> (90)
+        on left: 92
+        on right: 20 22 32 33 45 93
+    symbol <symbol> (91)
+        on left: 93 94
+        on right: 34 81 82 83 84 85 86 87
+    assignment_stmt (92)
+        on left: 95
+        on right: 5
+    assign_op <flavor> (93)
+        on left: 96 97 98
+        on right: 95
+    assign_val <string> (94)
+        on left: 99 100
+        on right: 95
+
+
+State 0
+
+    0 $accept: . input $end
+
+    T_MAINMENU  shift, and go to state 1
+
+    $default  reduce using rule 4 (stmt_list)
+
+    input          go to state 2
+    mainmenu_stmt  go to state 3
+    stmt_list      go to state 4
+
+
+State 1
+
+    3 mainmenu_stmt: T_MAINMENU . T_WORD_QUOTE T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 5
+
+
+State 2
+
+    0 $accept: input . $end
+
+    $end  shift, and go to state 6
+
+
+State 3
+
+    1 input: mainmenu_stmt . stmt_list
+
+    $default  reduce using rule 4 (stmt_list)
+
+    stmt_list  go to state 7
+
+
+State 4
+
+    2 input: stmt_list .
+    5 stmt_list: stmt_list . assignment_stmt
+    6          | stmt_list . choice_stmt
+    7          | stmt_list . comment_stmt
+    8          | stmt_list . config_stmt
+    9          | stmt_list . if_stmt
+   10          | stmt_list . menu_stmt
+   11          | stmt_list . menuconfig_stmt
+   12          | stmt_list . source_stmt
+   13          | stmt_list . T_WORD error T_EOL
+   14          | stmt_list . error T_EOL
+
+    error         shift, and go to state 8
+    T_WORD        shift, and go to state 9
+    T_CHOICE      shift, and go to state 10
+    T_COMMENT     shift, and go to state 11
+    T_CONFIG      shift, and go to state 12
+    T_IF          shift, and go to state 13
+    T_MENU        shift, and go to state 14
+    T_MENUCONFIG  shift, and go to state 15
+    T_SOURCE      shift, and go to state 16
+
+    $end  reduce using rule 2 (input)
+
+    config_entry_start      go to state 17
+    config_stmt             go to state 18
+    menuconfig_entry_start  go to state 19
+    menuconfig_stmt         go to state 20
+    choice                  go to state 21
+    choice_entry            go to state 22
+    choice_stmt             go to state 23
+    if_entry                go to state 24
+    if_stmt                 go to state 25
+    menu                    go to state 26
+    menu_entry              go to state 27
+    menu_stmt               go to state 28
+    source_stmt             go to state 29
+    comment                 go to state 30
+    comment_stmt            go to state 31
+    assignment_stmt         go to state 32
+
+
+State 5
+
+    3 mainmenu_stmt: T_MAINMENU T_WORD_QUOTE . T_EOL
+
+    T_EOL  shift, and go to state 33
+
+
+State 6
+
+    0 $accept: input $end .
+
+    $default  accept
+
+
+State 7
+
+    1 input: mainmenu_stmt stmt_list .
+    5 stmt_list: stmt_list . assignment_stmt
+    6          | stmt_list . choice_stmt
+    7          | stmt_list . comment_stmt
+    8          | stmt_list . config_stmt
+    9          | stmt_list . if_stmt
+   10          | stmt_list . menu_stmt
+   11          | stmt_list . menuconfig_stmt
+   12          | stmt_list . source_stmt
+   13          | stmt_list . T_WORD error T_EOL
+   14          | stmt_list . error T_EOL
+
+    error         shift, and go to state 8
+    T_WORD        shift, and go to state 9
+    T_CHOICE      shift, and go to state 10
+    T_COMMENT     shift, and go to state 11
+    T_CONFIG      shift, and go to state 12
+    T_IF          shift, and go to state 13
+    T_MENU        shift, and go to state 14
+    T_MENUCONFIG  shift, and go to state 15
+    T_SOURCE      shift, and go to state 16
+
+    $end  reduce using rule 1 (input)
+
+    config_entry_start      go to state 17
+    config_stmt             go to state 18
+    menuconfig_entry_start  go to state 19
+    menuconfig_stmt         go to state 20
+    choice                  go to state 21
+    choice_entry            go to state 22
+    choice_stmt             go to state 23
+    if_entry                go to state 24
+    if_stmt                 go to state 25
+    menu                    go to state 26
+    menu_entry              go to state 27
+    menu_stmt               go to state 28
+    source_stmt             go to state 29
+    comment                 go to state 30
+    comment_stmt            go to state 31
+    assignment_stmt         go to state 32
+
+
+State 8
+
+   14 stmt_list: stmt_list error . T_EOL
+
+    T_EOL  shift, and go to state 34
+
+
+State 9
+
+   13 stmt_list: stmt_list T_WORD . error T_EOL
+   95 assignment_stmt: T_WORD . assign_op assign_val T_EOL
+
+    error          shift, and go to state 35
+    T_COLON_EQUAL  shift, and go to state 36
+    T_PLUS_EQUAL   shift, and go to state 37
+    T_EQUAL        shift, and go to state 38
+
+    assign_op  go to state 39
+
+
+State 10
+
+   36 choice: T_CHOICE . T_EOL
+
+    T_EOL  shift, and go to state 40
+
+
+State 11
+
+   66 comment: T_COMMENT . T_WORD_QUOTE T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 41
+
+
+State 12
+
+   20 config_entry_start: T_CONFIG . nonconst_symbol T_EOL
+
+    T_WORD  shift, and go to state 42
+
+    nonconst_symbol  go to state 43
+
+
+State 13
+
+   54 if_entry: T_IF . expr T_EOL
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 47
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 14
+
+   58 menu: T_MENU . T_WORD_QUOTE T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 50
+
+
+State 15
+
+   22 menuconfig_entry_start: T_MENUCONFIG . nonconst_symbol T_EOL
+
+    T_WORD  shift, and go to state 42
+
+    nonconst_symbol  go to state 51
+
+
+State 16
+
+   65 source_stmt: T_SOURCE . T_WORD_QUOTE T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 52
+
+
+State 17
+
+   21 config_stmt: config_entry_start . config_option_list
+
+    $default  reduce using rule 24 (config_option_list)
+
+    config_option_list  go to state 53
+
+
+State 18
+
+    8 stmt_list: stmt_list config_stmt .
+
+    $default  reduce using rule 8 (stmt_list)
+
+
+State 19
+
+   23 menuconfig_stmt: menuconfig_entry_start . config_option_list
+
+    $default  reduce using rule 24 (config_option_list)
+
+    config_option_list  go to state 54
+
+
+State 20
+
+   11 stmt_list: stmt_list menuconfig_stmt .
+
+    $default  reduce using rule 11 (stmt_list)
+
+
+State 21
+
+   37 choice_entry: choice . choice_option_list
+
+    $default  reduce using rule 40 (choice_option_list)
+
+    choice_option_list  go to state 55
+
+
+State 22
+
+   39 choice_stmt: choice_entry . stmt_list_in_choice choice_end
+
+    $default  reduce using rule 15 (stmt_list_in_choice)
+
+    stmt_list_in_choice  go to state 56
+
+
+State 23
+
+    6 stmt_list: stmt_list choice_stmt .
+
+    $default  reduce using rule 6 (stmt_list)
+
+
+State 24
+
+   56 if_stmt: if_entry . stmt_list if_end
+
+    $default  reduce using rule 4 (stmt_list)
+
+    stmt_list  go to state 57
+
+
+State 25
+
+    9 stmt_list: stmt_list if_stmt .
+
+    $default  reduce using rule 9 (stmt_list)
+
+
+State 26
+
+   59 menu_entry: menu . menu_option_list
+
+    $default  reduce using rule 62 (menu_option_list)
+
+    menu_option_list  go to state 58
+
+
+State 27
+
+   61 menu_stmt: menu_entry . stmt_list menu_end
+
+    $default  reduce using rule 4 (stmt_list)
+
+    stmt_list  go to state 59
+
+
+State 28
+
+   10 stmt_list: stmt_list menu_stmt .
+
+    $default  reduce using rule 10 (stmt_list)
+
+
+State 29
+
+   12 stmt_list: stmt_list source_stmt .
+
+    $default  reduce using rule 12 (stmt_list)
+
+
+State 30
+
+   67 comment_stmt: comment . comment_option_list
+
+    $default  reduce using rule 68 (comment_option_list)
+
+    comment_option_list  go to state 60
+
+
+State 31
+
+    7 stmt_list: stmt_list comment_stmt .
+
+    $default  reduce using rule 7 (stmt_list)
+
+
+State 32
+
+    5 stmt_list: stmt_list assignment_stmt .
+
+    $default  reduce using rule 5 (stmt_list)
+
+
+State 33
+
+    3 mainmenu_stmt: T_MAINMENU T_WORD_QUOTE T_EOL .
+
+    $default  reduce using rule 3 (mainmenu_stmt)
+
+
+State 34
+
+   14 stmt_list: stmt_list error T_EOL .
+
+    $default  reduce using rule 14 (stmt_list)
+
+
+State 35
+
+   13 stmt_list: stmt_list T_WORD error . T_EOL
+
+    T_EOL  shift, and go to state 61
+
+
+State 36
+
+   97 assign_op: T_COLON_EQUAL .
+
+    $default  reduce using rule 97 (assign_op)
+
+
+State 37
+
+   98 assign_op: T_PLUS_EQUAL .
+
+    $default  reduce using rule 98 (assign_op)
+
+
+State 38
+
+   96 assign_op: T_EQUAL .
+
+    $default  reduce using rule 96 (assign_op)
+
+
+State 39
+
+   95 assignment_stmt: T_WORD assign_op . assign_val T_EOL
+
+    T_ASSIGN_VAL  shift, and go to state 62
+
+    $default  reduce using rule 99 (assign_val)
+
+    assign_val  go to state 63
+
+
+State 40
+
+   36 choice: T_CHOICE T_EOL .
+
+    $default  reduce using rule 36 (choice)
+
+
+State 41
+
+   66 comment: T_COMMENT T_WORD_QUOTE . T_EOL
+
+    T_EOL  shift, and go to state 64
+
+
+State 42
+
+   92 nonconst_symbol: T_WORD .
+
+    $default  reduce using rule 92 (nonconst_symbol)
+
+
+State 43
+
+   20 config_entry_start: T_CONFIG nonconst_symbol . T_EOL
+
+    T_EOL  shift, and go to state 65
+
+
+State 44
+
+   94 symbol: T_WORD_QUOTE .
+
+    $default  reduce using rule 94 (symbol)
+
+
+State 45
+
+   88 expr: T_OPEN_PAREN . expr T_CLOSE_PAREN
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 66
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 46
+
+   89 expr: T_NOT . expr
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 67
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 47
+
+   54 if_entry: T_IF expr . T_EOL
+   90 expr: expr . T_OR expr
+   91     | expr . T_AND expr
+
+    T_EOL  shift, and go to state 68
+    T_OR   shift, and go to state 69
+    T_AND  shift, and go to state 70
+
+
+State 48
+
+   93 symbol: nonconst_symbol .
+
+    $default  reduce using rule 93 (symbol)
+
+
+State 49
+
+   81 expr: symbol .
+   82     | symbol . T_LESS symbol
+   83     | symbol . T_LESS_EQUAL symbol
+   84     | symbol . T_GREATER symbol
+   85     | symbol . T_GREATER_EQUAL symbol
+   86     | symbol . T_EQUAL symbol
+   87     | symbol . T_UNEQUAL symbol
+
+    T_EQUAL          shift, and go to state 71
+    T_UNEQUAL        shift, and go to state 72
+    T_LESS           shift, and go to state 73
+    T_LESS_EQUAL     shift, and go to state 74
+    T_GREATER        shift, and go to state 75
+    T_GREATER_EQUAL  shift, and go to state 76
+
+    $default  reduce using rule 81 (expr)
+
+
+State 50
+
+   58 menu: T_MENU T_WORD_QUOTE . T_EOL
+
+    T_EOL  shift, and go to state 77
+
+
+State 51
+
+   22 menuconfig_entry_start: T_MENUCONFIG nonconst_symbol . T_EOL
+
+    T_EOL  shift, and go to state 78
+
+
+State 52
+
+   65 source_stmt: T_SOURCE T_WORD_QUOTE . T_EOL
+
+    T_EOL  shift, and go to state 79
+
+
+State 53
+
+   21 config_stmt: config_entry_start config_option_list .
+   25 config_option_list: config_option_list . config_option
+   26                   | config_option_list . depends
+   27                   | config_option_list . help
+
+    T_BOOL          shift, and go to state 80
+    T_DEFAULT       shift, and go to state 81
+    T_DEF_BOOL      shift, and go to state 82
+    T_DEF_TRISTATE  shift, and go to state 83
+    T_DEPENDS       shift, and go to state 84
+    T_HELP          shift, and go to state 85
+    T_HEX           shift, and go to state 86
+    T_IMPLY         shift, and go to state 87
+    T_INT           shift, and go to state 88
+    T_MODULES       shift, and go to state 89
+    T_PROMPT        shift, and go to state 90
+    T_RANGE         shift, and go to state 91
+    T_SELECT        shift, and go to state 92
+    T_STRING        shift, and go to state 93
+    T_TRANSITIONAL  shift, and go to state 94
+    T_TRISTATE      shift, and go to state 95
+
+    $default  reduce using rule 21 (config_stmt)
+
+    config_option  go to state 96
+    type           go to state 97
+    default        go to state 98
+    help_start     go to state 99
+    help           go to state 100
+    depends        go to state 101
+
+
+State 54
+
+   23 menuconfig_stmt: menuconfig_entry_start config_option_list .
+   25 config_option_list: config_option_list . config_option
+   26                   | config_option_list . depends
+   27                   | config_option_list . help
+
+    T_BOOL          shift, and go to state 80
+    T_DEFAULT       shift, and go to state 81
+    T_DEF_BOOL      shift, and go to state 82
+    T_DEF_TRISTATE  shift, and go to state 83
+    T_DEPENDS       shift, and go to state 84
+    T_HELP          shift, and go to state 85
+    T_HEX           shift, and go to state 86
+    T_IMPLY         shift, and go to state 87
+    T_INT           shift, and go to state 88
+    T_MODULES       shift, and go to state 89
+    T_PROMPT        shift, and go to state 90
+    T_RANGE         shift, and go to state 91
+    T_SELECT        shift, and go to state 92
+    T_STRING        shift, and go to state 93
+    T_TRANSITIONAL  shift, and go to state 94
+    T_TRISTATE      shift, and go to state 95
+
+    $default  reduce using rule 23 (menuconfig_stmt)
+
+    config_option  go to state 96
+    type           go to state 97
+    default        go to state 98
+    help_start     go to state 99
+    help           go to state 100
+    depends        go to state 101
+
+
+State 55
+
+   37 choice_entry: choice choice_option_list .
+   41 choice_option_list: choice_option_list . choice_option
+   42                   | choice_option_list . depends
+   43                   | choice_option_list . help
+
+    T_DEFAULT  shift, and go to state 102
+    T_DEPENDS  shift, and go to state 84
+    T_HELP     shift, and go to state 85
+    T_PROMPT   shift, and go to state 103
+
+    $default  reduce using rule 37 (choice_entry)
+
+    choice_option  go to state 104
+    help_start     go to state 99
+    help           go to state 105
+    depends        go to state 106
+
+
+State 56
+
+   16 stmt_list_in_choice: stmt_list_in_choice . comment_stmt
+   17                    | stmt_list_in_choice . config_stmt
+   18                    | stmt_list_in_choice . if_stmt_in_choice
+   19                    | stmt_list_in_choice . error T_EOL
+   39 choice_stmt: choice_entry stmt_list_in_choice . choice_end
+
+    error        shift, and go to state 107
+    T_COMMENT    shift, and go to state 11
+    T_CONFIG     shift, and go to state 12
+    T_ENDCHOICE  shift, and go to state 108
+    T_ENDIF      shift, and go to state 109
+    T_ENDMENU    shift, and go to state 110
+    T_IF         shift, and go to state 13
+
+    config_entry_start  go to state 17
+    config_stmt         go to state 111
+    choice_end          go to state 112
+    if_entry            go to state 113
+    if_stmt_in_choice   go to state 114
+    comment             go to state 30
+    comment_stmt        go to state 115
+    end                 go to state 116
+
+
+State 57
+
+    5 stmt_list: stmt_list . assignment_stmt
+    6          | stmt_list . choice_stmt
+    7          | stmt_list . comment_stmt
+    8          | stmt_list . config_stmt
+    9          | stmt_list . if_stmt
+   10          | stmt_list . menu_stmt
+   11          | stmt_list . menuconfig_stmt
+   12          | stmt_list . source_stmt
+   13          | stmt_list . T_WORD error T_EOL
+   14          | stmt_list . error T_EOL
+   56 if_stmt: if_entry stmt_list . if_end
+
+    error         shift, and go to state 8
+    T_WORD        shift, and go to state 9
+    T_CHOICE      shift, and go to state 10
+    T_COMMENT     shift, and go to state 11
+    T_CONFIG      shift, and go to state 12
+    T_ENDCHOICE   shift, and go to state 108
+    T_ENDIF       shift, and go to state 109
+    T_ENDMENU     shift, and go to state 110
+    T_IF          shift, and go to state 13
+    T_MENU        shift, and go to state 14
+    T_MENUCONFIG  shift, and go to state 15
+    T_SOURCE      shift, and go to state 16
+
+    config_entry_start      go to state 17
+    config_stmt             go to state 18
+    menuconfig_entry_start  go to state 19
+    menuconfig_stmt         go to state 20
+    choice                  go to state 21
+    choice_entry            go to state 22
+    choice_stmt             go to state 23
+    if_entry                go to state 24
+    if_end                  go to state 117
+    if_stmt                 go to state 25
+    menu                    go to state 26
+    menu_entry              go to state 27
+    menu_stmt               go to state 28
+    source_stmt             go to state 29
+    comment                 go to state 30
+    comment_stmt            go to state 31
+    end                     go to state 118
+    assignment_stmt         go to state 32
+
+
+State 58
+
+   59 menu_entry: menu menu_option_list .
+   63 menu_option_list: menu_option_list . visible
+   64                 | menu_option_list . depends
+
+    T_DEPENDS  shift, and go to state 84
+    T_VISIBLE  shift, and go to state 119
+
+    $default  reduce using rule 59 (menu_entry)
+
+    depends  go to state 120
+    visible  go to state 121
+
+
+State 59
+
+    5 stmt_list: stmt_list . assignment_stmt
+    6          | stmt_list . choice_stmt
+    7          | stmt_list . comment_stmt
+    8          | stmt_list . config_stmt
+    9          | stmt_list . if_stmt
+   10          | stmt_list . menu_stmt
+   11          | stmt_list . menuconfig_stmt
+   12          | stmt_list . source_stmt
+   13          | stmt_list . T_WORD error T_EOL
+   14          | stmt_list . error T_EOL
+   61 menu_stmt: menu_entry stmt_list . menu_end
+
+    error         shift, and go to state 8
+    T_WORD        shift, and go to state 9
+    T_CHOICE      shift, and go to state 10
+    T_COMMENT     shift, and go to state 11
+    T_CONFIG      shift, and go to state 12
+    T_ENDCHOICE   shift, and go to state 108
+    T_ENDIF       shift, and go to state 109
+    T_ENDMENU     shift, and go to state 110
+    T_IF          shift, and go to state 13
+    T_MENU        shift, and go to state 14
+    T_MENUCONFIG  shift, and go to state 15
+    T_SOURCE      shift, and go to state 16
+
+    config_entry_start      go to state 17
+    config_stmt             go to state 18
+    menuconfig_entry_start  go to state 19
+    menuconfig_stmt         go to state 20
+    choice                  go to state 21
+    choice_entry            go to state 22
+    choice_stmt             go to state 23
+    if_entry                go to state 24
+    if_stmt                 go to state 25
+    menu                    go to state 26
+    menu_entry              go to state 27
+    menu_end                go to state 122
+    menu_stmt               go to state 28
+    source_stmt             go to state 29
+    comment                 go to state 30
+    comment_stmt            go to state 31
+    end                     go to state 123
+    assignment_stmt         go to state 32
+
+
+State 60
+
+   67 comment_stmt: comment comment_option_list .
+   69 comment_option_list: comment_option_list . depends
+
+    T_DEPENDS  shift, and go to state 84
+
+    $default  reduce using rule 67 (comment_stmt)
+
+    depends  go to state 124
+
+
+State 61
+
+   13 stmt_list: stmt_list T_WORD error T_EOL .
+
+    $default  reduce using rule 13 (stmt_list)
+
+
+State 62
+
+  100 assign_val: T_ASSIGN_VAL .
+
+    $default  reduce using rule 100 (assign_val)
+
+
+State 63
+
+   95 assignment_stmt: T_WORD assign_op assign_val . T_EOL
+
+    T_EOL  shift, and go to state 125
+
+
+State 64
+
+   66 comment: T_COMMENT T_WORD_QUOTE T_EOL .
+
+    $default  reduce using rule 66 (comment)
+
+
+State 65
+
+   20 config_entry_start: T_CONFIG nonconst_symbol T_EOL .
+
+    $default  reduce using rule 20 (config_entry_start)
+
+
+State 66
+
+   88 expr: T_OPEN_PAREN expr . T_CLOSE_PAREN
+   90     | expr . T_OR expr
+   91     | expr . T_AND expr
+
+    T_CLOSE_PAREN  shift, and go to state 126
+    T_OR           shift, and go to state 69
+    T_AND          shift, and go to state 70
+
+
+State 67
+
+   89 expr: T_NOT expr .
+   90     | expr . T_OR expr
+   91     | expr . T_AND expr
+
+    $default  reduce using rule 89 (expr)
+
+
+State 68
+
+   54 if_entry: T_IF expr T_EOL .
+
+    $default  reduce using rule 54 (if_entry)
+
+
+State 69
+
+   90 expr: expr T_OR . expr
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 127
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 70
+
+   91 expr: expr T_AND . expr
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 128
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 71
+
+   86 expr: symbol T_EQUAL . symbol
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 129
+
+
+State 72
+
+   87 expr: symbol T_UNEQUAL . symbol
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 130
+
+
+State 73
+
+   82 expr: symbol T_LESS . symbol
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 131
+
+
+State 74
+
+   83 expr: symbol T_LESS_EQUAL . symbol
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 132
+
+
+State 75
+
+   84 expr: symbol T_GREATER . symbol
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 133
+
+
+State 76
+
+   85 expr: symbol T_GREATER_EQUAL . symbol
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 134
+
+
+State 77
+
+   58 menu: T_MENU T_WORD_QUOTE T_EOL .
+
+    $default  reduce using rule 58 (menu)
+
+
+State 78
+
+   22 menuconfig_entry_start: T_MENUCONFIG nonconst_symbol T_EOL .
+
+    $default  reduce using rule 22 (menuconfig_entry_start)
+
+
+State 79
+
+   65 source_stmt: T_SOURCE T_WORD_QUOTE T_EOL .
+
+    $default  reduce using rule 65 (source_stmt)
+
+
+State 80
+
+   46 type: T_BOOL .
+
+    $default  reduce using rule 46 (type)
+
+
+State 81
+
+   51 default: T_DEFAULT .
+
+    $default  reduce using rule 51 (default)
+
+
+State 82
+
+   52 default: T_DEF_BOOL .
+
+    $default  reduce using rule 52 (default)
+
+
+State 83
+
+   53 default: T_DEF_TRISTATE .
+
+    $default  reduce using rule 53 (default)
+
+
+State 84
+
+   72 depends: T_DEPENDS . T_ON expr T_EOL
+
+    T_ON  shift, and go to state 135
+
+
+State 85
+
+   70 help_start: T_HELP . T_EOL
+
+    T_EOL  shift, and go to state 136
+
+
+State 86
+
+   49 type: T_HEX .
+
+    $default  reduce using rule 49 (type)
+
+
+State 87
+
+   33 config_option: T_IMPLY . nonconst_symbol if_expr T_EOL
+
+    T_WORD  shift, and go to state 42
+
+    nonconst_symbol  go to state 137
+
+
+State 88
+
+   48 type: T_INT .
+
+    $default  reduce using rule 48 (type)
+
+
+State 89
+
+   35 config_option: T_MODULES . T_EOL
+
+    T_EOL  shift, and go to state 138
+
+
+State 90
+
+   29 config_option: T_PROMPT . T_WORD_QUOTE if_expr T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 139
+
+
+State 91
+
+   34 config_option: T_RANGE . symbol symbol if_expr T_EOL
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 140
+
+
+State 92
+
+   32 config_option: T_SELECT . nonconst_symbol if_expr T_EOL
+
+    T_WORD  shift, and go to state 42
+
+    nonconst_symbol  go to state 141
+
+
+State 93
+
+   50 type: T_STRING .
+
+    $default  reduce using rule 50 (type)
+
+
+State 94
+
+   30 config_option: T_TRANSITIONAL . T_EOL
+
+    T_EOL  shift, and go to state 142
+
+
+State 95
+
+   47 type: T_TRISTATE .
+
+    $default  reduce using rule 47 (type)
+
+
+State 96
+
+   25 config_option_list: config_option_list config_option .
+
+    $default  reduce using rule 25 (config_option_list)
+
+
+State 97
+
+   28 config_option: type . prompt_stmt_opt T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 143
+
+    $default  reduce using rule 74 (prompt_stmt_opt)
+
+    prompt_stmt_opt  go to state 144
+
+
+State 98
+
+   31 config_option: default . expr if_expr T_EOL
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 145
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 99
+
+   71 help: help_start . T_HELPTEXT
+
+    T_HELPTEXT  shift, and go to state 146
+
+
+State 100
+
+   27 config_option_list: config_option_list help .
+
+    $default  reduce using rule 27 (config_option_list)
+
+
+State 101
+
+   26 config_option_list: config_option_list depends .
+
+    $default  reduce using rule 26 (config_option_list)
+
+
+State 102
+
+   45 choice_option: T_DEFAULT . nonconst_symbol if_expr T_EOL
+
+    T_WORD  shift, and go to state 42
+
+    nonconst_symbol  go to state 147
+
+
+State 103
+
+   44 choice_option: T_PROMPT . T_WORD_QUOTE if_expr T_EOL
+
+    T_WORD_QUOTE  shift, and go to state 148
+
+
+State 104
+
+   41 choice_option_list: choice_option_list choice_option .
+
+    $default  reduce using rule 41 (choice_option_list)
+
+
+State 105
+
+   43 choice_option_list: choice_option_list help .
+
+    $default  reduce using rule 43 (choice_option_list)
+
+
+State 106
+
+   42 choice_option_list: choice_option_list depends .
+
+    $default  reduce using rule 42 (choice_option_list)
+
+
+State 107
+
+   19 stmt_list_in_choice: stmt_list_in_choice error . T_EOL
+
+    T_EOL  shift, and go to state 149
+
+
+State 108
+
+   77 end: T_ENDCHOICE . T_EOL
+
+    T_EOL  shift, and go to state 150
+
+
+State 109
+
+   78 end: T_ENDIF . T_EOL
+
+    T_EOL  shift, and go to state 151
+
+
+State 110
+
+   76 end: T_ENDMENU . T_EOL
+
+    T_EOL  shift, and go to state 152
+
+
+State 111
+
+   17 stmt_list_in_choice: stmt_list_in_choice config_stmt .
+
+    $default  reduce using rule 17 (stmt_list_in_choice)
+
+
+State 112
+
+   39 choice_stmt: choice_entry stmt_list_in_choice choice_end .
+
+    $default  reduce using rule 39 (choice_stmt)
+
+
+State 113
+
+   57 if_stmt_in_choice: if_entry . stmt_list_in_choice if_end
+
+    $default  reduce using rule 15 (stmt_list_in_choice)
+
+    stmt_list_in_choice  go to state 153
+
+
+State 114
+
+   18 stmt_list_in_choice: stmt_list_in_choice if_stmt_in_choice .
+
+    $default  reduce using rule 18 (stmt_list_in_choice)
+
+
+State 115
+
+   16 stmt_list_in_choice: stmt_list_in_choice comment_stmt .
+
+    $default  reduce using rule 16 (stmt_list_in_choice)
+
+
+State 116
+
+   38 choice_end: end .
+
+    $default  reduce using rule 38 (choice_end)
+
+
+State 117
+
+   56 if_stmt: if_entry stmt_list if_end .
+
+    $default  reduce using rule 56 (if_stmt)
+
+
+State 118
+
+   55 if_end: end .
+
+    $default  reduce using rule 55 (if_end)
+
+
+State 119
+
+   73 visible: T_VISIBLE . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 155
+
+
+State 120
+
+   64 menu_option_list: menu_option_list depends .
+
+    $default  reduce using rule 64 (menu_option_list)
+
+
+State 121
+
+   63 menu_option_list: menu_option_list visible .
+
+    $default  reduce using rule 63 (menu_option_list)
+
+
+State 122
+
+   61 menu_stmt: menu_entry stmt_list menu_end .
+
+    $default  reduce using rule 61 (menu_stmt)
+
+
+State 123
+
+   60 menu_end: end .
+
+    $default  reduce using rule 60 (menu_end)
+
+
+State 124
+
+   69 comment_option_list: comment_option_list depends .
+
+    $default  reduce using rule 69 (comment_option_list)
+
+
+State 125
+
+   95 assignment_stmt: T_WORD assign_op assign_val T_EOL .
+
+    $default  reduce using rule 95 (assignment_stmt)
+
+
+State 126
+
+   88 expr: T_OPEN_PAREN expr T_CLOSE_PAREN .
+
+    $default  reduce using rule 88 (expr)
+
+
+State 127
+
+   90 expr: expr . T_OR expr
+   90     | expr T_OR expr .
+   91     | expr . T_AND expr
+
+    T_AND  shift, and go to state 70
+
+    $default  reduce using rule 90 (expr)
+
+
+State 128
+
+   90 expr: expr . T_OR expr
+   91     | expr . T_AND expr
+   91     | expr T_AND expr .
+
+    $default  reduce using rule 91 (expr)
+
+
+State 129
+
+   86 expr: symbol T_EQUAL symbol .
+
+    $default  reduce using rule 86 (expr)
+
+
+State 130
+
+   87 expr: symbol T_UNEQUAL symbol .
+
+    $default  reduce using rule 87 (expr)
+
+
+State 131
+
+   82 expr: symbol T_LESS symbol .
+
+    $default  reduce using rule 82 (expr)
+
+
+State 132
+
+   83 expr: symbol T_LESS_EQUAL symbol .
+
+    $default  reduce using rule 83 (expr)
+
+
+State 133
+
+   84 expr: symbol T_GREATER symbol .
+
+    $default  reduce using rule 84 (expr)
+
+
+State 134
+
+   85 expr: symbol T_GREATER_EQUAL symbol .
+
+    $default  reduce using rule 85 (expr)
+
+
+State 135
+
+   72 depends: T_DEPENDS T_ON . expr T_EOL
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 156
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 136
+
+   70 help_start: T_HELP T_EOL .
+
+    $default  reduce using rule 70 (help_start)
+
+
+State 137
+
+   33 config_option: T_IMPLY nonconst_symbol . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 157
+
+
+State 138
+
+   35 config_option: T_MODULES T_EOL .
+
+    $default  reduce using rule 35 (config_option)
+
+
+State 139
+
+   29 config_option: T_PROMPT T_WORD_QUOTE . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 158
+
+
+State 140
+
+   34 config_option: T_RANGE symbol . symbol if_expr T_EOL
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+
+    nonconst_symbol  go to state 48
+    symbol           go to state 159
+
+
+State 141
+
+   32 config_option: T_SELECT nonconst_symbol . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 160
+
+
+State 142
+
+   30 config_option: T_TRANSITIONAL T_EOL .
+
+    $default  reduce using rule 30 (config_option)
+
+
+State 143
+
+   75 prompt_stmt_opt: T_WORD_QUOTE . if_expr
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 161
+
+
+State 144
+
+   28 config_option: type prompt_stmt_opt . T_EOL
+
+    T_EOL  shift, and go to state 162
+
+
+State 145
+
+   31 config_option: default expr . if_expr T_EOL
+   90 expr: expr . T_OR expr
+   91     | expr . T_AND expr
+
+    T_IF   shift, and go to state 154
+    T_OR   shift, and go to state 69
+    T_AND  shift, and go to state 70
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 163
+
+
+State 146
+
+   71 help: help_start T_HELPTEXT .
+
+    $default  reduce using rule 71 (help)
+
+
+State 147
+
+   45 choice_option: T_DEFAULT nonconst_symbol . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 164
+
+
+State 148
+
+   44 choice_option: T_PROMPT T_WORD_QUOTE . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 165
+
+
+State 149
+
+   19 stmt_list_in_choice: stmt_list_in_choice error T_EOL .
+
+    $default  reduce using rule 19 (stmt_list_in_choice)
+
+
+State 150
+
+   77 end: T_ENDCHOICE T_EOL .
+
+    $default  reduce using rule 77 (end)
+
+
+State 151
+
+   78 end: T_ENDIF T_EOL .
+
+    $default  reduce using rule 78 (end)
+
+
+State 152
+
+   76 end: T_ENDMENU T_EOL .
+
+    $default  reduce using rule 76 (end)
+
+
+State 153
+
+   16 stmt_list_in_choice: stmt_list_in_choice . comment_stmt
+   17                    | stmt_list_in_choice . config_stmt
+   18                    | stmt_list_in_choice . if_stmt_in_choice
+   19                    | stmt_list_in_choice . error T_EOL
+   57 if_stmt_in_choice: if_entry stmt_list_in_choice . if_end
+
+    error        shift, and go to state 107
+    T_COMMENT    shift, and go to state 11
+    T_CONFIG     shift, and go to state 12
+    T_ENDCHOICE  shift, and go to state 108
+    T_ENDIF      shift, and go to state 109
+    T_ENDMENU    shift, and go to state 110
+    T_IF         shift, and go to state 13
+
+    config_entry_start  go to state 17
+    config_stmt         go to state 111
+    if_entry            go to state 113
+    if_end              go to state 166
+    if_stmt_in_choice   go to state 114
+    comment             go to state 30
+    comment_stmt        go to state 115
+    end                 go to state 118
+
+
+State 154
+
+   80 if_expr: T_IF . expr
+
+    T_WORD        shift, and go to state 42
+    T_WORD_QUOTE  shift, and go to state 44
+    T_OPEN_PAREN  shift, and go to state 45
+    T_NOT         shift, and go to state 46
+
+    expr             go to state 167
+    nonconst_symbol  go to state 48
+    symbol           go to state 49
+
+
+State 155
+
+   73 visible: T_VISIBLE if_expr . T_EOL
+
+    T_EOL  shift, and go to state 168
+
+
+State 156
+
+   72 depends: T_DEPENDS T_ON expr . T_EOL
+   90 expr: expr . T_OR expr
+   91     | expr . T_AND expr
+
+    T_EOL  shift, and go to state 169
+    T_OR   shift, and go to state 69
+    T_AND  shift, and go to state 70
+
+
+State 157
+
+   33 config_option: T_IMPLY nonconst_symbol if_expr . T_EOL
+
+    T_EOL  shift, and go to state 170
+
+
+State 158
+
+   29 config_option: T_PROMPT T_WORD_QUOTE if_expr . T_EOL
+
+    T_EOL  shift, and go to state 171
+
+
+State 159
+
+   34 config_option: T_RANGE symbol symbol . if_expr T_EOL
+
+    T_IF  shift, and go to state 154
+
+    $default  reduce using rule 79 (if_expr)
+
+    if_expr  go to state 172
+
+
+State 160
+
+   32 config_option: T_SELECT nonconst_symbol if_expr . T_EOL
+
+    T_EOL  shift, and go to state 173
+
+
+State 161
+
+   75 prompt_stmt_opt: T_WORD_QUOTE if_expr .
+
+    $default  reduce using rule 75 (prompt_stmt_opt)
+
+
+State 162
+
+   28 config_option: type prompt_stmt_opt T_EOL .
+
+    $default  reduce using rule 28 (config_option)
+
+
+State 163
+
+   31 config_option: default expr if_expr . T_EOL
+
+    T_EOL  shift, and go to state 174
+
+
+State 164
+
+   45 choice_option: T_DEFAULT nonconst_symbol if_expr . T_EOL
+
+    T_EOL  shift, and go to state 175
+
+
+State 165
+
+   44 choice_option: T_PROMPT T_WORD_QUOTE if_expr . T_EOL
+
+    T_EOL  shift, and go to state 176
+
+
+State 166
+
+   57 if_stmt_in_choice: if_entry stmt_list_in_choice if_end .
+
+    $default  reduce using rule 57 (if_stmt_in_choice)
+
+
+State 167
+
+   80 if_expr: T_IF expr .
+   90 expr: expr . T_OR expr
+   91     | expr . T_AND expr
+
+    T_OR   shift, and go to state 69
+    T_AND  shift, and go to state 70
+
+    $default  reduce using rule 80 (if_expr)
+
+
+State 168
+
+   73 visible: T_VISIBLE if_expr T_EOL .
+
+    $default  reduce using rule 73 (visible)
+
+
+State 169
+
+   72 depends: T_DEPENDS T_ON expr T_EOL .
+
+    $default  reduce using rule 72 (depends)
+
+
+State 170
+
+   33 config_option: T_IMPLY nonconst_symbol if_expr T_EOL .
+
+    $default  reduce using rule 33 (config_option)
+
+
+State 171
+
+   29 config_option: T_PROMPT T_WORD_QUOTE if_expr T_EOL .
+
+    $default  reduce using rule 29 (config_option)
+
+
+State 172
+
+   34 config_option: T_RANGE symbol symbol if_expr . T_EOL
+
+    T_EOL  shift, and go to state 177
+
+
+State 173
+
+   32 config_option: T_SELECT nonconst_symbol if_expr T_EOL .
+
+    $default  reduce using rule 32 (config_option)
+
+
+State 174
+
+   31 config_option: default expr if_expr T_EOL .
+
+    $default  reduce using rule 31 (config_option)
+
+
+State 175
+
+   45 choice_option: T_DEFAULT nonconst_symbol if_expr T_EOL .
+
+    $default  reduce using rule 45 (choice_option)
+
+
+State 176
+
+   44 choice_option: T_PROMPT T_WORD_QUOTE if_expr T_EOL .
+
+    $default  reduce using rule 44 (choice_option)
+
+
+State 177
+
+   34 config_option: T_RANGE symbol symbol if_expr T_EOL .
+
+    $default  reduce using rule 34 (config_option)
