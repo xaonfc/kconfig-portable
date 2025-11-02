@@ -1,0 +1,14 @@
+
+mainmenu "Test Kconfig"
+
+config HELLO_WORLD
+    bool "Hello, world!"
+    default y
+    help
+        This is a test option.
+
+config MY_STRING
+    string "My String"
+    default "test"
+    help
+        This is a test string.

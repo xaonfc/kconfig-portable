@@ -1,12 +1,12 @@
 Kconfig tools
+=============
 
-==============================
-
-You can use this in your kconfig based build system but it may need changes to the code to make it work for your project. This is just a simple implementation.
+You can use this in your kconfig based build system. This is just a simple implementation.
 
 
 Build:
--------------------
+------
+
 1. Navigate to the root directory of this repository.
 2. Run 'make' to build all the tools:
 
@@ -20,7 +20,23 @@ $ make conf
 
 Clean Instructions:
 -------------------
+
 To start fresh you can run:
+
 $ make clean
 
+Testing
+-------
 
+To test one of the built binaries, you can run any *conf following command. For example:
+
+$ ./kconfig/mconf Kconfig.test # for menuconfig
+$ ./kconfig/nconf Kconfig.test # for nconfig
+$ ./kconfig/gconf Kconfig.test # for gconfig
+$ ./kconfig/qconf Kconfig.test # for xconfig
+$ ./kconfig/conf Kconfig.test  # for config
+
+Credits
+-------
+
+Linux kernel authors - Original Kconfig system 

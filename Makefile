@@ -75,9 +75,13 @@ $(BINDIR)/qconf: $(COMMON_OBJS) $(QCONF_OBJS)
 	@echo "  LD      $@"
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $(COMMON_OBJS) $(QCONF_OBJS) $(LDFLAGS) $(shell $(PKG_CONFIG) --libs Qt5Core Qt5Gui Qt5Widgets)
 
-$(BINDIR)/gconf: $(COMMON_OBJS) $(GCONF_OBJS)
+$(BINDIR)/gconf: $(COMMON_OBJS) $(GCONF_OBJS) $(KCONFIG_SRCDIR)/gconf.ui
 	@echo "  LD      $@"
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $(COMMON_OBJS) $(GCONF_OBJS) $(LDFLAGS) $(shell $(PKG_CONFIG) --libs gtk+-3.0)
+
+$(KCONFIG_SRCDIR)/gconf.ui:
+	@echo "  CP      $@"
+	@cp linux/scripts/kconfig/gconf.ui $@
 
 
 
@@ -152,5 +156,4 @@ gconf: $(BINDIR)/gconf
 
 clean:
 	rm -f $(KCONFIG_SRCDIR)/conf $(KCONFIG_SRCDIR)/nconf $(KCONFIG_SRCDIR)/mconf $(KCONFIG_SRCDIR)/qconf $(KCONFIG_SRCDIR)/gconf
-	rm -f $(KCONFIG_SRCDIR)/*.o $(KCONFIG_SRCDIR)/*.lex.c $(KCONFIG_SRCDIR)/*.tab.c $(KCONFIG_SRCDIR)/*.tab.h $(KCONFIG_SRCDIR)/*-moc.cc
-	rm -f $(KCONFIG_SRCDIR)/gconf.ui
+	rm -f $(KCONFIG_SRCDIR)/*.o $(KCONFIG_SRCDIR)/*.lex.c $(KCONFIG_SRCDIR)/*.output $(KCONFIG_SRCDIR)/*.tab.c $(KCONFIG_SRCDIR)/*.tab.h $(KCONFIG_SRCDIR)/*-moc.cc
